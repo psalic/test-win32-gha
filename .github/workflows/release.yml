@@ -30,9 +30,15 @@ jobs:
           pacman -Rsc --noconfirm mingw-w64-ucrt-x86_64-imagemagick
           bash msys2_scripts/msys2-lxi-tools-redistributable.sh
           bash msys2_scripts/msys2-lxi-tools-create-exe.sh
+      - name: Install GH CLI
+        uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
+        with:
+          gh-cli-version: 2.32.0 # optional, see action.yml for current default
       - name: Upload windows x64
         run:
          gh release create 2.7 lxi-tools.exe
          gh release upload 2.7 lxi-tools-redistributable/lxi-tools.exe
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
