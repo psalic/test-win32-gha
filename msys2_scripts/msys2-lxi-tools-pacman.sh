@@ -15,4 +15,4 @@ pacman -S --noconfirm git meson cmake gcc libxml2-devel libtirpc-devel\
  mingw-w64-ucrt-x86_64-lua mingw-w64-ucrt-x86_64-gtk4 mingw-w64-ucrt-x86_64-gtksourceview5 \
  mingw-w64-ucrt-x86_64-libadwaita mingw-w64-ucrt-x86_64-jp2-pixbuf-loader \
  mingw-w64-ucrt-x86_64-webp-pixbuf-loader patch curl libcurl-devel \
- mingw-w64-ucrt-x86_64-nsis mingw-w64-ucrt-x86_64-nsis-nsisunz
+ mingw-w64-ucrt-x86_64-nsis mingw-w64-ucrt-x86_64-nsis-nsisunz mingw-w64-ucrt-x86_64-jq

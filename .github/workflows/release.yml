@@ -1,24 +1,23 @@
-name: LXI-TOOLS-WIN64-RELEASE
+name: lxi-tools-win64-release
 on: [workflow_dispatch]
 
 jobs:
   build-release:
+    permissions: write-all
     runs-on: windows-latest
     defaults:
       run:
         shell: msys2 {0}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - uses: msys2/setup-msys2@v2
         with:
           msystem: MSYS
           update: true
-          install: git
-      - name: CI-Build
+      - name: Build
         run: |
-          echo 'Running in MSYS2!'
           bash msys2_scripts/msys2-lxi-tools-pacman.sh
           pacman -S --noconfirm mingw-w64-ucrt-x86_64-imagemagick
           meson setup liblxi/build liblxi
@@ -26,18 +25,19 @@ jobs:
           meson install -C liblxi/build
           export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/ucrt64/lib/pkgconfig:$PKG_CONFIG_PATH
           meson setup lxi-tools/build lxi-tools
+          export BUILD_VERSION=$(shell meson introspect --projectinfo lxi-tools/build | /ucrt64/bin/jq -r '.version')
           meson compile -j 1 -C lxi-tools/build
-          pacman -Rsc --noconfirm mingw-w64-ucrt-x86_64-imagemagick
+          pacman -Rsc --noconfirm mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-jq
           bash msys2_scripts/msys2-lxi-tools-redistributable.sh
-          bash msys2_scripts/msys2-lxi-tools-create-exe.sh
-      - name: Install GH CLI
-        uses: dev-hanz-ops/install-gh-cli-action@v0.1.0
-        with:
-          gh-cli-version: 2.32.0 # optional, see action.yml for current default
-      - name: Upload windows x64
-        run:
-         gh release create 2.7 lxi-tools.exe
-         gh release upload 2.7 lxi-tools-redistributable/lxi-tools.exe
+          export APP_DATA=AppData
+          /ucrt64/bin/makensis msys2_scripts/nsis_lxi-toolst.nsi
+          echo $BUILD_VERSION > release_tag.txt
+          mv msys2_scripts/lxi-tools-$BUILD_VERSION.exe .
+      - name: Upload Lxi Tools windows x64
+        shell: cmd
+        run: |
+         set /p Release_tag=<release_tag.txt
+         gh release create v%Release_tag% lxi-tools-%Release_tag%.exe
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OWNER: ${{ github.repository_owner }}

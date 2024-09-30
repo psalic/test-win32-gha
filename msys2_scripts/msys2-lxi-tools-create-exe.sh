@@ -23,4 +23,7 @@ echo "create lxi-tools exe file"
 cd $SCRIPT_DIR/../ && /ucrt64/bin/makensis msys2_scripts/nsis_lxi-toolst.nsi
 
 #mv $SCRIPT_DIR/lxi-tools-$BUILD_VERSION.exe $SCRIPT_DIR/../$REDISTRIBUTABLE_DIR
-mv $SCRIPT_DIR/lxi-tools-$BUILD_VERSION.exe $SCRIPT_DIR/../$REDISTRIBUTABLE_DIR/lxi-tool.exe
+#mv $SCRIPT_DIR/lxi-tools-$BUILD_VERSION.exe $SCRIPT_DIR/../$REDISTRIBUTABLE_DIR/lxi-tools.exe
+mv $SCRIPT_DIR/lxi-tools-$BUILD_VERSION.exe $SCRIPT_DIR/../lxi-tools.exe
+
+echo $BUILD_VERSION > release_tag.txt

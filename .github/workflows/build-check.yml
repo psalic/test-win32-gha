@@ -1,5 +1,5 @@
-name: LXI-TOOLS-WIN64-BUILD-CHECK
-on: [workflow_dispatch]
+name: lxi-tools-win64-build-check
+on: [push, workflow_dispatch]
 
 env:
   TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -11,7 +11,7 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - uses: msys2/setup-msys2@v2
@@ -19,9 +19,8 @@ jobs:
           msystem: MSYS
           update: true
           install: git
-      - name: CI-Build
+      - name: Build
         run: |
-          echo 'Running in MSYS2!'
           bash msys2_scripts/msys2-lxi-tools-pacman.sh
           pacman -S --noconfirm mingw-w64-ucrt-x86_64-imagemagick
           meson setup liblxi/build liblxi
@@ -29,7 +28,17 @@ jobs:
           meson install -C liblxi/build
           export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/ucrt64/lib/pkgconfig:$PKG_CONFIG_PATH
           meson setup lxi-tools/build lxi-tools
+          export BUILD_VERSION=$(shell meson introspect --projectinfo lxi-tools/build | /ucrt64/bin/jq -r '.version')
           meson compile -j 1 -C lxi-tools/build
-          pacman -Rsc --noconfirm mingw-w64-ucrt-x86_64-imagemagick
+          pacman -Rsc --noconfirm mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-jq
           bash msys2_scripts/msys2-lxi-tools-redistributable.sh
-          bash msys2_scripts/msys2-lxi-tools-create-exe.sh
+          export APP_DATA=AppData
+          /ucrt64/bin/makensis msys2_scripts/nsis_lxi-toolst.nsi
+          echo $BUILD_VERSION > release_tag.txt
+          cat release_tag.txt 
+          mv msys2_scripts/lxi-tools-$BUILD_VERSION.exe lxi-tools.exe
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: lxi-tools.exe
+          path: lxi-tools.exe
