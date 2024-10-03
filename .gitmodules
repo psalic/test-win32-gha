@@ -1,6 +1,6 @@
 [submodule "lxi-tools"]
 	path = lxi-tools
-	url = https://github.com/lxi-tools/lxi-tools.git
+	url = https://github.com/psalic/lxi-tools.git
 [submodule "liblxi"]
 	path = liblxi
 	url = https://github.com/lxi-tools/liblxi.git
